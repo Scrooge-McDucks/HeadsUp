@@ -1,3 +1,11 @@
+## v1.3.1
+
+- Code restructured to match Pick Pocket Tracker: lowercase files split by job (config, utils, data, speech, watcher, options, events, commands, init), `NS` modules, 2-space indent.
+- Fix: with a long countdown, a cast bar starting just before the hit could repeat the callout.
+- Login no longer warns about LittleWigs when it's installed but not loaded yet (BigWigs loads it in dungeons).
+- Unknown `/hu` commands, and `/hu lead` or `/hu count` without a number, now print an error instead of opening the window.
+- Addon compartment entry shows a tooltip.
+
 ## v1.3.0
 
 - New "Count down" switch: turn the countdown off without losing your "Count down from" number.
