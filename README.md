@@ -2,76 +2,83 @@
 
 # Heads Up
 
-Voice-only tank-buster warnings. No frames, no bars, nothing on screen.
+Heads Up says tank busters out loud, so you can keep your eyes on the fight.
+When a tank buster is coming, it speaks the ability name, then counts down:
 
-> "<Ability>, tank buster in 5" … "3" … "2" … "1"
+> "Blade Combo, tank buster in 5" … "3" … "2" … "1"
+
+It doesn't add anything to the screen. Everything it does is spoken.
 
 ## How it works
 
-Heads Up sits on top of **BigWigs + LittleWigs**. BigWigs already works out
-which boss ability every timer is (including from Blizzard's boss timeline,
-whose spell data is hidden from addons in Midnight). LittleWigs tags abilities
-as `TANK` / `TANK_HEALER` in each boss module. Heads Up listens to BigWigs'
-timer messages, keeps the tank ones, and speaks them with the game's
-text-to-speech.
+Heads Up doesn't track boss abilities itself. It listens to
+[BigWigs](https://www.curseforge.com/wow/addons/big-wigs) and
+[LittleWigs](https://www.curseforge.com/wow/addons/littlewigs), which already
+know which ability each timer belongs to. LittleWigs also marks which abilities
+hit the tank. Heads Up picks out those timers and reads them aloud with your
+game's text-to-speech voice.
 
-Any dungeon or raid boss that BigWigs and LittleWigs cover works.
-
-**Keep the bar for each tank buster turned on in BigWigs.** BigWigs only sends
-its timer message when that ability's bar is enabled, so turning a bar off
-turns off the callout too. Heads Up can't hear a bar BigWigs doesn't send.
-
-**Limits:**
-- Heads Up needs LittleWigs for dungeon bosses. It tells you at login if it's missing.
-- Abilities BigWigs doesn't recognise (new encounters, or abilities missing from
-  LittleWigs) aren't announced, and the extra list can't add them. The extra list
-  only covers abilities BigWigs already has a bar for.
-- A saved voice that isn't installed on the computer you're on falls back to the
-  default voice, with a one-time message.
+It works for any dungeon or raid boss that BigWigs and LittleWigs cover.
 
 ## Install
 
 1. Install BigWigs and LittleWigs.
-2. Copy the `Heads Up` folder to `World of Warcraft/_retail_/Interface/AddOns/`.
-3. In game, `/hu test` to hear a full callout.
+2. Copy the `Heads Up` folder into `World of Warcraft/_retail_/Interface/AddOns/`.
+3. In game, type `/hu test` to hear a sample callout.
 
-## Commands
+## Before you fight
 
-- `/hu` opens the options window (also reachable from Options > AddOns > Heads Up)
-- `/hu test` plays a full callout and countdown
-- `/hu lead <secs>` sets when the first callout plays (default 5)
-- `/hu count <n>` sets the countdown start, 0–10 (default 3, 0 = off)
-- `/hu add <spellID>` / `/hu remove <spellID>` adds or removes extra tank busters
-- `/hu toggle` turns it on or off
-
-## Options window
-
-Type `/hu`. Left side: on/off, tank-only, first callout, countdown start, wording,
-voice, speed and volume. Right side: extra tank-buster spell IDs, a live
-"You'll hear" preview, and a Test button. Esc closes it.
+- **Keep BigWigs bars turned on for the tank busters you want.** BigWigs only
+  tells Heads Up about a timer when that timer's bar is enabled. If you hide a
+  bar, you won't hear its callout either.
+- **LittleWigs is required for dungeon bosses.** Heads Up tells you at login if
+  it's missing.
+- **Abilities BigWigs doesn't know about won't be announced.** This happens with
+  brand-new encounters, or abilities LittleWigs hasn't flagged yet.
+- **If your saved voice isn't installed on this computer,** Heads Up uses the
+  default voice and tells you once.
 
 ## Extra tank busters
 
-BigWigs and LittleWigs flag most tank busters. Some abilities aren't flagged,
-so you can add them by spell ID with `/hu add <spellID>` (or in the options
-window). This only works for abilities BigWigs already shows a timer bar for.
+LittleWigs flags most tank busters. If one is missing, add its spell ID with
+`/hu add <spellID>`, or use the options window. This only works for abilities
+BigWigs already shows a bar for.
+
+## Commands
+
+- `/hu` opens the options window. You can also open it from Options > AddOns > Heads Up.
+- `/hu test` plays a full callout and countdown.
+- `/hu lead <seconds>` sets when the first callout plays (default 5).
+- `/hu count <n>` sets where the countdown starts, from 0 to 10 (default 3; 0 turns it off).
+- `/hu add <spellID>` and `/hu remove <spellID>` manage your extra tank busters.
+- `/hu toggle` turns Heads Up on or off.
+
+## Options window
+
+Type `/hu` to open it. On the left you'll find the on/off switch, tank-only mode,
+the first callout time, the countdown start, the wording, the voice, speed and
+volume. On the right are your extra spell IDs, a "You'll hear" preview, and a
+Test button. Press Esc to close it.
 
 ## Settings
 
-Only when I'm a tank (on), first callout seconds (5), count down from (3,
-0 = off, up to 10), wording (name + "tank buster" / name only / "tank buster" only),
-speech speed and volume.
+- **Only when I'm a tank:** on by default. Heads Up stays quiet in other roles.
+- **First callout:** 5 seconds before the hit by default.
+- **Count down from:** 3 by default. Set it between 0 (no countdown) and 10.
+- **Wording:** "<ability>, tank buster in 5", "<ability> in 5", or "Tank buster in 5".
+- **Speech speed and volume:** adjust to taste.
 
 If the countdown starts at or above the first callout, the callout drops its
-number and plays 1.5s earlier: "<Ability>, tank buster… 5, 4, 3, 2, 1". The voice is your Blizzard text-to-speech voice.
+number and plays 1.5 seconds earlier. You'll hear something like
+"<ability>, tank buster", then "5, 4, 3, 2, 1".
 
 ## Running the tests
 
-See [tests/README.md](tests/README.md). In short, with lupa installed:
+See [tests/README.md](tests/README.md). With lupa installed, run:
 
 ```
 python tests/run_tests.py
 ```
 
-CI runs the same command on every push and pull request. A tag `v*` runs the
-tests first, then packages and publishes the addon (see `.github/workflows/release.yml`).
+Every push and pull request runs the same tests on GitHub. Pushing a `v*` tag
+runs them first, then packages and publishes the addon.
