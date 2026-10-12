@@ -23,20 +23,11 @@ local function tocFiles()
     return files
 end
 
--- Lua files actually in Sources/ (ls on Linux/macOS, dir on Windows).
+-- Lua files in Sources/. run_tests.py lists the folder and passes it in, so
+-- this test never needs io.popen (which not every Lua build provides).
 local function sourceFiles()
-    local p = io.popen('ls "' .. ADDON_DIR .. '/Sources" 2>/dev/null')
-    local out = p and p:read("*a") or ""
-    if p then p:close() end
-    if out == "" then
-        p = io.popen('dir /b "' .. ADDON_DIR .. '\\Sources"')
-        out = p and p:read("*a") or ""
-        if p then p:close() end
-    end
     local files = {}
-    for name in out:gmatch("[^\r\n]+") do
-        if name:match("%.lua$") then files[#files + 1] = "Sources/" .. name end
-    end
+    for i, name in ipairs(SOURCE_FILES or {}) do files[i] = "Sources/" .. name end
     return files
 end
 
@@ -63,7 +54,7 @@ H.try("every Lua source file is listed in the TOC", function()
     local listed = {}
     for _, path in ipairs(tocFiles()) do listed[path] = true end
     local found = sourceFiles()
-    H.check("found source files", #found > 0, "is the addon folder right?")
+    H.check("found source files", #found > 0, "run_tests.py did not pass SOURCE_FILES")
     for _, path in ipairs(found) do
         H.check(path .. " is in the TOC", listed[path] == true,
             "exists but the game won't load it")

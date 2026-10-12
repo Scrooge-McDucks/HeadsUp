@@ -1,6 +1,6 @@
 ## Interface: 120105, 120100
 ## Title: Heads Up
-## Notes: Speaks tank busters from BigWigs/LittleWigs timers: "Blade Combo, tank buster in 5... 3, 2, 1".
+## Notes: Speaks tank busters from BigWigs/LittleWigs timers: "<Ability>, tank buster in 5... 3, 2, 1".
 ## Author: Richard Scott
 ## Version: 1.2.1
 ## X-License: MIT

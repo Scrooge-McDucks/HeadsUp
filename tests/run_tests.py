@@ -37,6 +37,9 @@ def run(path):
     lua = lupa.LuaRuntime(unpack_returned_tuples=True)
     lua.globals().ADDON_DIR = str(ADDON_DIR)
     lua.globals().TESTS_DIR = str(TESTS_DIR)
+    # Heads Up only: the integration test checks these files against the TOC.
+    source_files = sorted(p.name for p in (ADDON_DIR / "Sources").glob("*.lua"))
+    lua.globals().SOURCE_FILES = lua.table_from(source_files)
     lua.globals().TEST_FAILURES = 0
 
     print("\n=== %s ===" % path.name, flush=True)

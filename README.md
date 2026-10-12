@@ -4,7 +4,7 @@
 
 Voice-only tank-buster warnings. No frames, no bars, nothing on screen.
 
-> "Blade Combo, tank buster in 5" … "3" … "2" … "1"
+> "<Ability>, tank buster in 5" … "3" … "2" … "1"
 
 ## How it works
 
@@ -15,8 +15,7 @@ as `TANK` / `TANK_HEALER` in each boss module. Heads Up listens to BigWigs'
 timer messages, keeps the tank ones, and speaks them with the game's
 text-to-speech.
 
-That means any dungeon or raid boss LittleWigs/BigWigs covers works, not just
-King's Rest.
+Any dungeon or raid boss that BigWigs and LittleWigs cover works.
 
 **Keep the bar for each tank buster turned on in BigWigs.** BigWigs only sends
 its timer message when that ability's bar is enabled, so turning a bar off
@@ -36,16 +35,6 @@ turns off the callout too. Heads Up can't hear a bar BigWigs doesn't send.
 2. Copy the `Heads Up` folder to `World of Warcraft/_retail_/Interface/AddOns/`.
 3. In game, `/hu test` to hear a full callout.
 
-## King's Rest (Midnight Season 2)
-
-| Boss | Ability | Source |
-|---|---|---|
-| The Golden Serpent | Tail Thrash | LittleWigs TANK_HEALER flag |
-| Mchimba the Embalmer | — | no tank buster |
-| The Council of Tribes | Debilitating Backhand | LittleWigs TANK flag |
-| Dazar, The First King | Blade Combo | LittleWigs TANK_HEALER flag |
-| Dazar, The First King | Savage Maul | Heads Up extra list (not flagged by LittleWigs) |
-
 ## Commands
 
 - `/hu` opens the options window (also reachable from Options > AddOns > Heads Up)
@@ -61,6 +50,12 @@ Type `/hu`. Left side: on/off, tank-only, first callout, countdown start, wordin
 voice, speed and volume. Right side: extra tank-buster spell IDs, a live
 "You'll hear" preview, and a Test button. Esc closes it.
 
+## Extra tank busters
+
+BigWigs and LittleWigs flag most tank busters. Some abilities aren't flagged,
+so you can add them by spell ID with `/hu add <spellID>` (or in the options
+window). This only works for abilities BigWigs already shows a timer bar for.
+
 ## Settings
 
 Only when I'm a tank (on), first callout seconds (5), count down from (3,
@@ -68,7 +63,7 @@ Only when I'm a tank (on), first callout seconds (5), count down from (3,
 speech speed and volume.
 
 If the countdown starts at or above the first callout, the callout drops its
-number and plays 1.5s earlier: "Blade Combo, tank buster… 5, 4, 3, 2, 1". The voice is your Blizzard text-to-speech voice.
+number and plays 1.5s earlier: "<Ability>, tank buster… 5, 4, 3, 2, 1". The voice is your Blizzard text-to-speech voice.
 
 ## Running the tests
 
