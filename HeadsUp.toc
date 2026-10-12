@@ -4,6 +4,7 @@
 ## Author: Richard Scott
 ## Version: 1.2.1
 ## X-License: MIT
+## X-Curse-Project-ID: 1741504
 ## Dependencies: BigWigs
 ## OptionalDeps: LittleWigs
 ## SavedVariables: HeadsUpDB
