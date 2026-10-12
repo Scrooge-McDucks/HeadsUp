@@ -1,3 +1,8 @@
+## v1.3.0
+
+- New "Count down" switch: turn the countdown off without losing your "Count down from" number.
+- New "Say the seconds" switch (`/hu seconds`): leave "in 5" out of the first callout, e.g. just "Blade Combo" 5 seconds before the hit.
+
 ## v1.2.1
 
 - New addon icon.

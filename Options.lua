@@ -15,16 +15,18 @@ local SAMPLE = "Blade Combo"
 local function sampleLine()
     local db = ns.db
     local covers = ns.Watcher.CountCoversCallout()
+    local bare = covers or not db.sayTime
     local first
     if db.phrasing == "both" then
-        first = covers and (SAMPLE .. ", tank buster") or ("%s, tank buster in %d"):format(SAMPLE, db.lead)
+        first = bare and (SAMPLE .. ", tank buster") or ("%s, tank buster in %d"):format(SAMPLE, db.lead)
     elseif db.phrasing == "name" then
-        first = covers and SAMPLE or ("%s in %d"):format(SAMPLE, db.lead)
+        first = bare and SAMPLE or ("%s in %d"):format(SAMPLE, db.lead)
     else
-        first = covers and "Tank buster" or ("Tank buster in %d"):format(db.lead)
+        first = bare and "Tank buster" or ("Tank buster in %d"):format(db.lead)
     end
     local nums = {}
-    local start = covers and db.countFrom or math.min(db.countFrom, db.lead - 1)
+    local from = ns.CountFrom()
+    local start = covers and from or math.min(from, db.lead - 1)
     for n = start, 1, -1 do nums[#nums + 1] = tostring(n) end
     if #nums > 0 then first = first .. "...  " .. table.concat(nums, ", ") end
     return "\"" .. first .. "\""
@@ -241,7 +243,7 @@ end
 
 local function build()
     win = CreateFrame("Frame", "HeadsUpOptionsFrame", UIParent, "BackdropTemplate")
-    win:SetSize(720, 470)
+    win:SetSize(720, 530)
     win:SetPoint("CENTER")
     win:SetFrameStrata("DIALOG")
     win:SetBackdrop({
@@ -274,36 +276,38 @@ local function build()
     checkbox(win, "Enable callouts", "Speak tank busters during boss fights.", "enabled", L, -56)
     checkbox(win, "Only when I'm a tank", "Stay quiet unless your current specialization is a tank spec.", "onlyAsTank", L, -82)
     slider(win, "First callout (seconds before the hit)", "lead", 2, 10, 1, tostring, L, -118)
-    slider(win, "Count down from  (0 = no countdown)", "countFrom", 0, 10, 1, tostring, L, -164)
-    dropdown(win, "Wording", L, -210, function()
+    checkbox(win, "Count down", "After the first callout, count the last seconds: \"3, 2, 1\".", "countdown", L, -164)
+    slider(win, "Count down from", "countFrom", 0, 10, 1, tostring, L, -196)
+    dropdown(win, "Wording", L, -242, function()
         return {
             { text = "Blade Combo, tank buster in 5", value = "both" },
             { text = "Blade Combo in 5",              value = "name" },
             { text = "Tank buster in 5",              value = "generic" },
         }
     end, function() return ns.db.phrasing end, function(v) ns.db.phrasing = v end)
-    dropdown(win, "Voice", L, -262, voiceOptions,
+    checkbox(win, "Say the seconds", "Include \"in 5\" in the first callout. Turn off to hear just the ability name at the first callout time.", "sayTime", L, -290)
+    dropdown(win, "Voice", L, -324, voiceOptions,
         function() return ns.db.voiceID or false end,
         function(v) ns.db.voiceID = v or nil end)
-    slider(win, "Speech speed", "rate", -10, 10, 1, tostring, L, -314)
-    slider(win, "Volume", "volume", 0, 100, 5, tostring, L, -360)
+    slider(win, "Speech speed", "rate", -10, 10, 1, tostring, L, -376)
+    slider(win, "Volume", "volume", 0, 100, 5, tostring, L, -422)
 
     -- Right column: extra spells, preview, test.
     buildExtras(win, R, -56)
 
-    label(win, "You'll hear", R, -318)
-    local preview = label(win, "", R, -338, "GameFontHighlight")
+    label(win, "You'll hear", R, -330)
+    local preview = label(win, "", R, -350, "GameFontHighlight")
     preview:SetWidth(320)
     preview:SetWordWrap(true)
     refreshers[#refreshers + 1] = function() preview:SetText(sampleLine()) end
 
     local test = CreateFrame("Button", nil, win, "UIPanelButtonTemplate")
     test:SetSize(150, 26)
-    test:SetPoint("TOPLEFT", R, -384)
+    test:SetPoint("TOPLEFT", R, -414)
     test:SetText("Test callout")
     test:SetScript("OnClick", function() ns.Watcher:Test() end)
 
-    local hint = label(win, "/hu opens this window", R + 160, -390, "GameFontDisableSmall")
+    local hint = label(win, "/hu opens this window", R + 160, -420, "GameFontDisableSmall")
     hint:SetWidth(160)
 
     win:SetScript("OnShow", refreshAll)

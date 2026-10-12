@@ -43,9 +43,11 @@ end
 --   both    -> "Blade Combo, tank buster in 5"
 --   name    -> "Blade Combo in 5"
 --   generic -> "Tank buster in 5"
--- seconds = nil drops the number (the countdown that follows supplies it).
+-- seconds = nil drops the number (the countdown that follows supplies it, or
+-- "Say the seconds" is off). A late callout still says "now".
 function S:Announce(name, seconds)
     local mode = ns.db.phrasing
+    if not ns.db.sayTime and seconds and seconds > 0 then seconds = nil end
     if mode == "generic" or not name then name = nil end
     local msg
     if seconds == nil then

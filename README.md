@@ -50,13 +50,14 @@ BigWigs already shows a bar for.
 - `/hu test` plays a full callout and countdown.
 - `/hu lead <seconds>` sets when the first callout plays (default 5).
 - `/hu count <n>` sets where the countdown starts, from 0 to 10 (default 3; 0 turns it off).
+- `/hu seconds` switches "in 5" in the first callout on or off.
 - `/hu add <spellID>` and `/hu remove <spellID>` manage your extra tank busters.
 - `/hu toggle` turns Heads Up on or off.
 
 ## Options window
 
 Type `/hu` to open it. On the left you'll find the on/off switch, tank-only mode,
-the first callout time, the countdown start, the wording, the voice, speed and
+the first callout time, the countdown switch and start, the wording, "Say the seconds", the voice, speed and
 volume. On the right are your extra spell IDs, a "You'll hear" preview, and a
 Test button. Press Esc to close it.
 
@@ -64,8 +65,12 @@ Test button. Press Esc to close it.
 
 - **Only when I'm a tank:** on by default. Heads Up stays quiet in other roles.
 - **First callout:** 5 seconds before the hit by default.
+- **Count down:** on by default. Turn it off to hear only the first callout.
 - **Count down from:** 3 by default. Set it between 0 (no countdown) and 10.
 - **Wording:** "<ability>, tank buster in 5", "<ability> in 5", or "Tank buster in 5".
+- **Say the seconds:** on by default. Turn it off to leave out "in 5". With
+  "<ability> in 5" wording and the countdown off, you hear just "Blade Combo"
+  at the first callout time.
 - **Speech speed and volume:** adjust to taste.
 
 If the countdown starts at or above the first callout, the callout drops its

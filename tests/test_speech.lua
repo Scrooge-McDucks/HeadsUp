@@ -39,6 +39,18 @@ H.try("nil seconds drops the number", function()
     same("spoken", ctx.spokenMessages(), { "Blade Combo, tank buster" })
 end)
 
+H.try("Say the seconds off drops the number", function()
+    local ctx = H.newEnv({ db = { sayTime = false } })
+    ctx.ns.Speech:Announce("Blade Combo", 5)
+    same("spoken", ctx.spokenMessages(), { "Blade Combo, tank buster" })
+end)
+
+H.try("Say the seconds off still says now for a late callout", function()
+    local ctx = H.newEnv({ db = { sayTime = false } })
+    ctx.ns.Speech:Announce("Blade Combo", 0)
+    same("spoken", ctx.spokenMessages(), { "Blade Combo now" })
+end)
+
 H.try("zero seconds says now", function()
     local ctx = H.newEnv()
     ctx.ns.Speech:Announce("Blade Combo", 0)

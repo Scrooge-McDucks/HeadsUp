@@ -7,6 +7,11 @@ ns.name = ADDON
 -- issecretvalue only exists on 12.x clients; treat everything as readable elsewhere.
 ns.IsSecret = issecretvalue or function() return false end
 
+-- Where the countdown starts; 0 when it's switched off.
+function ns.CountFrom()
+    return ns.db.countdown and ns.db.countFrom or 0
+end
+
 -- Returns v only when it is a plain, readable value.
 function ns.Readable(v)
     if v ~= nil and not ns.IsSecret(v) then return v end
@@ -17,8 +22,10 @@ ns.defaults = {
     enabled    = true,
     onlyAsTank = true,   -- stay quiet unless your current spec is a tank spec
     lead       = 5,      -- seconds before impact for the first callout
+    countdown  = true,   -- false = first callout only, no numbers after it
     countFrom  = 3,      -- then count "3, 2, 1" (0 = no countdown)
     phrasing   = "both", -- "both" | "name" | "generic"  (see Speech.lua)
+    sayTime    = true,   -- false = first callout leaves out "in 5"
     rate       = 3,      -- TTS speed, -10..10
     volume     = 100,    -- TTS volume, 0..100
     voiceID    = nil,    -- nil = your Blizzard TTS voice
@@ -87,7 +94,11 @@ SlashCmdList.HEADSUP = function(input)
         ns.Print(("First callout %ds before impact."):format(ns.db.lead))
     elseif cmd == "count" and tonumber(rest) then
         ns.db.countFrom = math.max(0, math.min(10, math.floor(tonumber(rest))))
+        ns.db.countdown = true
         ns.Print(ns.db.countFrom == 0 and "Countdown off." or ("Countdown from %d."):format(ns.db.countFrom))
+    elseif cmd == "seconds" then
+        ns.db.sayTime = not ns.db.sayTime
+        ns.Print(ns.db.sayTime and "Callout says the seconds." or "Callout leaves out the seconds.")
     elseif cmd == "add" then
         if tonumber(rest) then
             ns.db.extra[tonumber(rest)] = true
@@ -106,7 +117,7 @@ SlashCmdList.HEADSUP = function(input)
         ns.db.enabled = not ns.db.enabled
         ns.Print(ns.db.enabled and "Enabled." or "Disabled.")
     elseif cmd == "help" then
-        ns.Print("/hu - options window | /hu test - hear a full callout | /hu lead <secs> | /hu count <n> | /hu add <spellID> | /hu remove <spellID> | /hu toggle")
+        ns.Print("/hu - options window | /hu test - hear a full callout | /hu lead <secs> | /hu count <n> | /hu seconds | /hu add <spellID> | /hu remove <spellID> | /hu toggle")
     else
         ns.Config:Toggle()
     end

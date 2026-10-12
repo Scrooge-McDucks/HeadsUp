@@ -115,23 +115,23 @@ local function announce(bar)
     if W.CountCoversCallout() and bar.remaining > 0.5 then
         -- Countdown carries the numbers: "Blade Combo, tank buster ... 5, 4, 3, 2, 1"
         if bar.speak then ns.Speech:Announce(bar.name, nil) end
-        bar.nextCount = math.min(ns.db.countFrom, math.floor(bar.remaining - 0.5))
+        bar.nextCount = math.min(ns.CountFrom(), math.floor(bar.remaining - 0.5))
     else
         -- "Blade Combo, tank buster in 5 ... 3, 2, 1": only count numbers below
         -- the one just spoken, so they don't talk over it.
         if bar.speak then ns.Speech:Announce(bar.name, secs) end
-        bar.nextCount = math.min(ns.db.countFrom, secs - 1)
+        bar.nextCount = math.min(ns.CountFrom(), secs - 1)
     end
 end
 
 -- If the countdown starts at or above the callout's own number, the callout
 -- drops its number and moves 1.5s earlier so it finishes before "5" is said.
 function W.CountCoversCallout()
-    return ns.db.countFrom >= ns.db.lead
+    return ns.CountFrom() >= ns.db.lead
 end
 
 function W.AnnounceAt()
-    if W.CountCoversCallout() then return ns.db.countFrom + 1.5 end
+    if W.CountCoversCallout() then return ns.CountFrom() + 1.5 end
     return ns.db.lead
 end
 
