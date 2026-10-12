@@ -272,7 +272,7 @@ function H.newEnv(opts)
     local ns = {}
     for _, file in ipairs({ "Core", "Speech", "Watcher", "Options" }) do
         ctx.loadingFile = file .. ".lua"
-        local chunk, err = loadfile(ADDON_DIR .. "/Sources/" .. file .. ".lua")
+        local chunk, err = loadfile(ADDON_DIR .. "/" .. file .. ".lua")
         assert(chunk, err)
         chunk("HeadsUp", ns)
     end

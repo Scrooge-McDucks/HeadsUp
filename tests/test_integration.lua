@@ -23,11 +23,11 @@ local function tocFiles()
     return files
 end
 
--- Lua files in Sources/. run_tests.py lists the folder and passes it in, so
+-- Lua files in the addon folder. run_tests.py lists the folder and passes it in, so
 -- this test never needs io.popen (which not every Lua build provides).
 local function sourceFiles()
     local files = {}
-    for i, name in ipairs(SOURCE_FILES or {}) do files[i] = "Sources/" .. name end
+    for i, name in ipairs(SOURCE_FILES or {}) do files[i] = name end
     return files
 end
 

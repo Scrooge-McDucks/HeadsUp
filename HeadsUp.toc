@@ -12,7 +12,7 @@
 ## IconTexture: Interface\AddOns\HeadsUp\Textures\HeadsUp
 ## Category: Combat
 
-Sources\Core.lua
-Sources\Speech.lua
-Sources\Watcher.lua
-Sources\Options.lua
+Core.lua
+Speech.lua
+Watcher.lua
+Options.lua
