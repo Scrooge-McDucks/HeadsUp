@@ -1,0 +1,15 @@
+# BigWigsMods/packager configuration (see .github/workflows/release.yml)
+#
+# The packager ships every tracked file that is not dot-prefixed, so anything
+# development-only must be listed under "ignore" or it ends up in the zip.
+
+package-as: HeadsUp
+
+ignore:
+  - tests
+
+# Release notes for CurseForge and the GitHub Release come from this file.
+# Add an entry in each version-bump commit.
+manual-changelog:
+  filename: CHANGELOG.md
+  markup-type: markdown
