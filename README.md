@@ -67,3 +67,17 @@ speech speed and volume.
 
 If the countdown starts at or above the first callout, the callout drops its
 number and plays 1.5s earlier: "Blade Combo, tank buster… 5, 4, 3, 2, 1". The voice is your Blizzard text-to-speech voice.
+
+## Running the tests
+
+The unit tests run outside the game, on plain Lua 5.1 or later. From the addon folder:
+
+```
+lua tests/run.lua
+```
+
+`tests/stubs.lua` fakes the parts of the WoW API the addon uses (frames, TTS,
+BigWigs messages, a fake clock). The tests cover saved-variable defaults, slash
+commands, phrasing, voice fallback, the countdown timing, bar pause/stop/clear,
+suppression of repeat casts, and the options window. They don't replace testing
+in the game client.
