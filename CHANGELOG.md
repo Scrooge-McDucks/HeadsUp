@@ -1,5 +1,6 @@
 ## v1.2.1
 
+- New addon icon.
 - Saved voice that isn't installed on this computer falls back to the default voice, with one message.
 - Speech errors are reported once instead of being silently dropped.
 - Warning at login when LittleWigs isn't loaded.

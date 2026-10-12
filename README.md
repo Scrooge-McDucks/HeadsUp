@@ -1,3 +1,5 @@
+<img src="assets/HeadsUp.png" alt="Heads Up icon" width="128" align="right">
+
 # Heads Up
 
 Voice-only tank-buster warnings. No frames, no bars, nothing on screen.
@@ -70,14 +72,11 @@ number and plays 1.5s earlier: "Blade Combo, tank buster… 5, 4, 3, 2, 1". The 
 
 ## Running the tests
 
-The unit tests run outside the game, on plain Lua 5.1 or later. From the addon folder:
+See [tests/README.md](tests/README.md). In short, with lupa installed:
 
 ```
-lua tests/run.lua
+python tests/run_tests.py
 ```
 
-`tests/stubs.lua` fakes the parts of the WoW API the addon uses (frames, TTS,
-BigWigs messages, a fake clock). The tests cover saved-variable defaults, slash
-commands, phrasing, voice fallback, the countdown timing, bar pause/stop/clear,
-suppression of repeat casts, and the options window. They don't replace testing
-in the game client.
+CI runs the same command on every push and pull request. A tag `v*` runs the
+tests first, then packages and publishes the addon (see `.github/workflows/release.yml`).

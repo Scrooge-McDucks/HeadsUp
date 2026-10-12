@@ -7,6 +7,8 @@ package-as: HeadsUp
 
 ignore:
   - tests
+  # Source artwork for the CurseForge page. The game uses Textures/HeadsUp.tga.
+  - assets
 
 # Release notes for CurseForge and the GitHub Release come from this file.
 # Add an entry in each version-bump commit.

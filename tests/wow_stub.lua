@@ -1,24 +1,102 @@
--- Minimal World of Warcraft API stubs for offline unit tests.
--- Plain Lua 5.1 compatible. Each call to load() gives a fresh addon state.
+-------------------------------------------------------------------------------
+-- wow_stub.lua: a fake World of Warcraft client, good enough to run Heads Up.
+--
+-- The real game is not available in CI, so this file installs stand-ins for
+-- every global the addon touches (CreateFrame, C_VoiceChat, C_AddOns, the
+-- BigWigs loader, ...) and returns a handle, H, that tests use to drive the
+-- world: move the fake clock, fire BigWigs messages and game events, step the
+-- countdown ticker, and check results.
+--
+-- Nothing here reaches the network or a real client. A "tick" is a direct
+-- call to the ticker's OnUpdate handler.
+--
+-- Usage from a test file:
+--     local H = dofile(TESTS_DIR .. "/wow_stub.lua")
+--     local ctx = H.newEnv({ db = { lead = 5 } })
+--     H.try("name", function() H.eq("x", ctx.db.lead, 5) end)
+--     H.report()
+--
+-- ADDON_DIR and TESTS_DIR are injected by run_tests.py.
+-------------------------------------------------------------------------------
 
-local M = {}
+local H = {}
+
+-- Keep the real print before the addon's chat output replaces it.
+H.out = print
+
+-- Lua 5.1 has a global `unpack`; 5.2+ moved it to table.unpack.
+H.unpack = table.unpack or unpack
+
+-------------------------------------------------------------------------------
+-- Assertions
+-------------------------------------------------------------------------------
+
+H.passed, H.failed = 0, 0
+
+function H.section(name)
+    H.out("\n  " .. name)
+end
+
+function H.check(name, cond, extra)
+    if cond then
+        H.passed = H.passed + 1
+        H.out("    PASS  " .. name)
+    else
+        H.failed = H.failed + 1
+        H.out("    FAIL  " .. name .. (extra ~= nil and ("  [" .. tostring(extra) .. "]") or ""))
+    end
+end
+
+function H.eq(name, got, want)
+    H.check(name, got == want, "got " .. tostring(got) .. ", want " .. tostring(want))
+end
+
+-- Run one test. An unexpected Lua error counts as a failure, not a crash.
+function H.try(name, fn)
+    local ok, err = pcall(fn)
+    if not ok then H.check(name, false, err) else H.check(name, true) end
+end
+
+function H.report()
+    H.out(string.format("\n  %d passed, %d failed", H.passed, H.failed))
+    TEST_FAILURES = (TEST_FAILURES or 0) + H.failed
+end
+
+-------------------------------------------------------------------------------
+-- Values and modules
+-------------------------------------------------------------------------------
 
 -- A value the stubbed client treats as secret (Midnight).
-function M.secret(v)
+function H.secret(v)
     return { __secret = true, value = v }
 end
 
-local function newCtx(opts)
+-- A boss module as BigWigs exposes it: flags maps option key -> "TANK" or "TANK_HEALER".
+function H.module(flags, names)
+    return {
+        flags = flags or {},
+        names = names or {},
+        CheckOption = function(self, key, flag) return self.flags[key] == flag end,
+        GetRename = function() return nil end,
+        SpellName = function(self, key) return self.names[key] end,
+    }
+end
+
+-------------------------------------------------------------------------------
+-- The client
+-------------------------------------------------------------------------------
+
+local function newClient(opts)
     local ctx = {
-        frames   = {},          -- every frame/widget created, in order
-        spoken   = {},          -- { id, msg, t } for each SpeakText call
-        printed  = {},          -- every line printed by the addon
-        clock    = 0,           -- fake GetTime()
-        handlers = {},          -- BigWigs message handlers by message name
-        tank     = opts.tank ~= false,
+        frames = {},          -- every frame or widget created, in order
+        spoken = {},          -- { id, msg, t } for each SpeakText call
+        printed = {},         -- every line the addon printed
+        clock = 0,            -- fake GetTime()
+        handlers = {},        -- BigWigs message handlers by name
+        tank = opts.tank ~= false,
         lwLoaded = opts.lwLoaded ~= false,
         speakError = opts.speakError,
-        voices   = opts.voices or {
+        voices = opts.voices or {
             { voiceID = 0, name = "Microsoft David" },
             { voiceID = 1, name = "Microsoft Zira" },
         },
@@ -63,12 +141,8 @@ local function newCtx(opts)
     function Widget.IsShown(self) return self.shown end
     function Widget.SetShown(self, v) self.shown = v and true or false end
     function Widget.SetupMenu(self, fn) self.menuFn = fn end
-    function Widget.CreateFontString()
-        return ctx.make("FontString")
-    end
-    function Widget.CreateTexture()
-        return ctx.make("Texture")
-    end
+    function Widget.CreateFontString() return ctx.make("FontString") end
+    function Widget.CreateTexture() return ctx.make("Texture") end
 
     function ctx.make(kind, name)
         local o = newWidget(kind, name)
@@ -76,8 +150,8 @@ local function newCtx(opts)
         return o
     end
 
-    -- Globals -----------------------------------------------------------------
-    _G.CreateFrame = function(kind, name, parent, template)
+    -- Globals -------------------------------------------------------------------
+    _G.CreateFrame = function(kind, name)
         local o = ctx.make(kind, name)
         if name then _G[name] = o end
         return o
@@ -141,7 +215,7 @@ local function newCtx(opts)
         RegisterMessage = function(_, msg, fn) ctx.handlers[msg] = fn end,
     }
 
-    -- Test helpers ------------------------------------------------------------
+    -- Helpers for tests ---------------------------------------------------------
     -- Fire a BigWigs message the way the loader does (message name first).
     function ctx.emit(msg, ...)
         local fn = ctx.handlers[msg]
@@ -155,7 +229,7 @@ local function newCtx(opts)
         end
     end
 
-    -- Advance the fake clock and run the countdown ticker in 0.1s steps.
+    -- Advance the fake clock, running the countdown ticker in 0.1s steps.
     function ctx.advance(seconds)
         local steps = math.floor(seconds * 10 + 0.5)
         for _ = 1, steps do
@@ -179,30 +253,26 @@ local function newCtx(opts)
         return n
     end
 
+    function ctx.findWidget(pred)
+        for _, f in ipairs(ctx.frames) do
+            if pred(f) then return f end
+        end
+    end
+
     return ctx
 end
 
--- A boss module as BigWigs exposes it: flags maps option key -> "TANK" | "TANK_HEALER".
-function M.module(flags, names)
-    return {
-        flags = flags or {},
-        names = names or {},
-        CheckOption = function(self, key, flag) return self.flags[key] == flag end,
-        GetRename = function() return nil end,
-        SpellName = function(self, key) return self.names[key] end,
-    }
-end
-
--- Load Core, Speech, Watcher and Options from `root`, fire ADDON_LOADED, and
--- return the context. opts: db (saved variables), tank, lwLoaded, voices, speakError.
-function M.load(root, opts)
+-- Load Core, Speech, Watcher and Options from the addon folder, fire
+-- ADDON_LOADED, and return the client context.
+-- opts: db (saved variables), tank, lwLoaded, voices, speakError.
+function H.newEnv(opts)
     opts = opts or {}
-    local ctx = newCtx(opts)
+    local ctx = newClient(opts)
     _G.HeadsUpDB = opts.db
     local ns = {}
     for _, file in ipairs({ "Core", "Speech", "Watcher", "Options" }) do
         ctx.loadingFile = file .. ".lua"
-        local chunk, err = loadfile(root .. "/Sources/" .. file .. ".lua")
+        local chunk, err = loadfile(ADDON_DIR .. "/Sources/" .. file .. ".lua")
         assert(chunk, err)
         chunk("HeadsUp", ns)
     end
@@ -216,4 +286,4 @@ function M.load(root, opts)
     return ctx
 end
 
-return M
+return H

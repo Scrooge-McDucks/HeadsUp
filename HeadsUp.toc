@@ -7,8 +7,9 @@
 ## Dependencies: BigWigs
 ## OptionalDeps: LittleWigs
 ## SavedVariables: HeadsUpDB
-## IconTexture: Interface\Icons\Ability_Warrior_DefensiveStance
+
 ## AddonCompartmentFunc: HeadsUp_OnCompartmentClick
+## IconTexture: Interface\AddOns\HeadsUp\Textures\HeadsUp
 ## Category: Combat
 
 Sources\Core.lua
