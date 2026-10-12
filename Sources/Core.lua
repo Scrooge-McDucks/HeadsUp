@@ -45,9 +45,22 @@ function ns.IsTankSpec()
     return GetSpecializationRole(spec) == "TANK"
 end
 
+local function isLoaded(addon)
+    local fn = (C_AddOns and C_AddOns.IsAddOnLoaded) or IsAddOnLoaded
+    return fn and fn(addon) and true or false
+end
+
 local f = CreateFrame("Frame")
 f:RegisterEvent("ADDON_LOADED")
-f:SetScript("OnEvent", function(_, _, name)
+f:SetScript("OnEvent", function(_, event, name)
+    if event == "PLAYER_LOGIN" then
+        -- Without LittleWigs there are no tank flags for dungeon bosses, so say so.
+        if not isLoaded("LittleWigs") then
+            ns.Print("LittleWigs isn't loaded, so dungeon tank busters won't be announced. Install LittleWigs to hear them.")
+        end
+        f:UnregisterEvent("PLAYER_LOGIN")
+        return
+    end
     if name ~= ADDON then return end
     HeadsUpDB = HeadsUpDB or {}
     applyDefaults(HeadsUpDB, ns.defaults)
@@ -55,6 +68,7 @@ f:SetScript("OnEvent", function(_, _, name)
     ns.Config:Init()
     ns.Watcher:Init()
     f:UnregisterEvent("ADDON_LOADED")
+    f:RegisterEvent("PLAYER_LOGIN")
 end)
 
 -- Addon compartment (minimap drawer) entry, named in the TOC.
@@ -74,12 +88,20 @@ SlashCmdList.HEADSUP = function(input)
     elseif cmd == "count" and tonumber(rest) then
         ns.db.countFrom = math.max(0, math.min(10, math.floor(tonumber(rest))))
         ns.Print(ns.db.countFrom == 0 and "Countdown off." or ("Countdown from %d."):format(ns.db.countFrom))
-    elseif cmd == "add" and tonumber(rest) then
-        ns.db.extra[tonumber(rest)] = true
-        ns.Print("Spell " .. rest .. " will be treated as a tank buster.")
-    elseif cmd == "remove" and tonumber(rest) then
-        ns.db.extra[tonumber(rest)] = nil
-        ns.Print("Spell " .. rest .. " removed from the extra list.")
+    elseif cmd == "add" then
+        if tonumber(rest) then
+            ns.db.extra[tonumber(rest)] = true
+            ns.Print("Spell " .. rest .. " will be treated as a tank buster.")
+        else
+            ns.Print("Usage: /hu add <spellID>")
+        end
+    elseif cmd == "remove" then
+        if tonumber(rest) then
+            ns.db.extra[tonumber(rest)] = nil
+            ns.Print("Spell " .. rest .. " removed from the extra list.")
+        else
+            ns.Print("Usage: /hu remove <spellID>")
+        end
     elseif cmd == "toggle" then
         ns.db.enabled = not ns.db.enabled
         ns.Print(ns.db.enabled and "Enabled." or "Disabled.")

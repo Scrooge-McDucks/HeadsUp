@@ -145,8 +145,15 @@ end
 local function voiceOptions()
     local opts = { { text = "Game default voice", value = false } }
     local voices = C_VoiceChat.GetTtsVoices and C_VoiceChat.GetTtsVoices() or {}
+    local saved = ns.db.voiceID
+    local found = false
     for _, v in ipairs(voices) do
         opts[#opts + 1] = { text = v.name, value = v.voiceID }
+        if v.voiceID == saved then found = true end
+    end
+    -- A voice saved on another computer: show it so the menu doesn't go blank.
+    if saved and not found and #voices > 0 then
+        opts[#opts + 1] = { text = "Saved voice (not installed here)", value = saved }
     end
     return opts
 end

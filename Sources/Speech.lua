@@ -4,18 +4,39 @@ local _, ns = ...
 local S = {}
 ns.Speech = S
 
+-- Voice IDs belong to the voices installed on this computer, and HeadsUpDB is
+-- account-wide, so a saved voice may not exist here. Fall back to the default.
+local function installedVoices()
+    return (C_VoiceChat.GetTtsVoices and C_VoiceChat.GetTtsVoices()) or {}
+end
+
 local function voiceID()
-    if ns.db.voiceID then return ns.db.voiceID end
+    local saved = ns.db.voiceID
+    if saved then
+        local voices = installedVoices()
+        if #voices == 0 then return saved end -- list not ready yet: trust the saved ID
+        for _, v in ipairs(voices) do
+            if v.voiceID == saved then return saved end
+        end
+        if not S.warnedMissingVoice then
+            S.warnedMissingVoice = true
+            ns.Print("Your saved voice isn't installed on this computer, so the default voice is used. Pick another in /hu.")
+        end
+    end
     if C_TTSSettings and C_TTSSettings.GetVoiceOptionID and Enum.TtsVoiceType then
         local ok, id = pcall(C_TTSSettings.GetVoiceOptionID, Enum.TtsVoiceType.Standard)
         if ok and id then return id end
     end
-    local voices = C_VoiceChat.GetTtsVoices and C_VoiceChat.GetTtsVoices()
-    return voices and voices[1] and voices[1].voiceID or 0
+    local voices = installedVoices()
+    return voices[1] and voices[1].voiceID or 0
 end
 
 function S:Say(msg)
-    pcall(C_VoiceChat.SpeakText, voiceID(), msg, ns.db.rate, ns.db.volume, true)
+    local ok, err = pcall(C_VoiceChat.SpeakText, voiceID(), msg, ns.db.rate, ns.db.volume, true)
+    if not ok and not S.warnedSpeakError then
+        S.warnedSpeakError = true
+        ns.Print("Couldn't speak through text-to-speech: " .. tostring(err))
+    end
 end
 
 -- First callout:

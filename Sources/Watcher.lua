@@ -53,9 +53,15 @@ local function shouldSpeak(bar)
     return true
 end
 
+-- The countdown ticker only runs while there is something to count down.
+local ticker = CreateFrame("Frame")
+local acc = 0
+local onTick -- defined below
+
 local function track(module, text, bar)
     bars[module] = bars[module] or {}
     bars[module][text] = bar
+    ticker:SetScript("OnUpdate", onTick)
 end
 
 -- BigWigs_StartBar: (event, module, key, text, time, icon, isApprox, maxTime, _, eventId)
@@ -130,14 +136,15 @@ function W.AnnounceAt()
 end
 
 -- 10 Hz countdown driver.
-local ticker = CreateFrame("Frame")
-local acc = 0
-ticker:SetScript("OnUpdate", function(_, elapsed)
+onTick = function(_, elapsed)
     acc = acc + elapsed
     if acc < 0.1 then return end
     local dt = acc
     acc = 0
-    if not next(bars) then return end
+    if not next(bars) then
+        ticker:SetScript("OnUpdate", nil)
+        return
+    end
     local lead = W.AnnounceAt()
     for module, list in pairs(bars) do
         for text, bar in pairs(list) do
@@ -159,7 +166,8 @@ ticker:SetScript("OnUpdate", function(_, elapsed)
         end
         if not next(list) then bars[module] = nil end
     end
-end)
+    if not next(bars) then ticker:SetScript("OnUpdate", nil) end
+end
 
 function W:Init()
     local loader = BigWigsLoader

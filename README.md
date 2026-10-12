@@ -14,8 +14,19 @@ timer messages, keeps the tank ones, and speaks them with the game's
 text-to-speech.
 
 That means any dungeon or raid boss LittleWigs/BigWigs covers works, not just
-King's Rest. Your BigWigs bars must stay enabled (the default), since Heads Up
-listens to them.
+King's Rest.
+
+**Keep the bar for each tank buster turned on in BigWigs.** BigWigs only sends
+its timer message when that ability's bar is enabled, so turning a bar off
+turns off the callout too. Heads Up can't hear a bar BigWigs doesn't send.
+
+**Limits:**
+- Heads Up needs LittleWigs for dungeon bosses. It tells you at login if it's missing.
+- Abilities BigWigs doesn't recognise (new encounters, or abilities missing from
+  LittleWigs) aren't announced, and the extra list can't add them. The extra list
+  only covers abilities BigWigs already has a bar for.
+- A saved voice that isn't installed on the computer you're on falls back to the
+  default voice, with a one-time message.
 
 ## Install
 

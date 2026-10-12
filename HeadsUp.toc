@@ -2,7 +2,7 @@
 ## Title: Heads Up
 ## Notes: Speaks tank busters from BigWigs/LittleWigs timers: "Blade Combo, tank buster in 5... 3, 2, 1".
 ## Author: Richard Scott
-## Version: 1.2.0
+## Version: 1.2.1
 ## Dependencies: BigWigs
 ## OptionalDeps: LittleWigs
 ## SavedVariables: HeadsUpDB
