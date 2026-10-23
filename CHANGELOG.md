@@ -1,3 +1,7 @@
+## v1.3.2
+
+- Fix: HeadsUp no longer forces LittleWigs to load at login (BigWigs warned about this). LittleWigs now loads in dungeons as normal.
+
 ## v1.3.1
 
 - Code restructured to match Pick Pocket Tracker: lowercase files split by job (config, utils, data, speech, watcher, options, events, commands, init), `NS` modules, 2-space indent.

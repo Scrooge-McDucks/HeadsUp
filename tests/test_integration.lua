@@ -27,6 +27,17 @@ H.try("TOC has an Interface version for the current client", function()
   H.check("## Interface line", readFile(ADDON_DIR .. "/HeadsUp.toc"):match("## Interface: %d+") ~= nil)
 end)
 
+H.try("TOC doesn't force LittleWigs to load early", function()
+  -- Any dependency on LittleWigs makes WoW load it at login; BigWigs warns about that.
+  local toc = readFile(ADDON_DIR .. "/HeadsUp.toc")
+  for line in toc:gmatch("[^\n]+") do
+    local key, value = line:match("^## (%S+): (.*)")
+    if key == "OptionalDeps" or key == "Dependencies" or key == "RequiredDeps" or key == "LoadWith" then
+      H.check(key .. " without LittleWigs", not value:find("LittleWigs"))
+    end
+  end
+end)
+
 H.try("the icon texture referenced by the TOC exists", function()
   local toc = readFile(ADDON_DIR .. "/HeadsUp.toc")
   local icon = toc:match("## IconTexture: Interface\\AddOns\\HeadsUp\\(%S+)")
